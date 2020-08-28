@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import itertools
 
 def v_wrap(np_array, dtype=np.float32, device='cpu'):
     if np_array.dtype != dtype:
@@ -41,3 +42,37 @@ def push_and_pull(lnet, gnet, opt, lr_s, done, s_, batch_s, batch_a, batch_r, ga
         lr_s.step()
 
     lnet.load_state_dict(gnet.state_dict())
+
+def push_and_pull_Q(lnet, gnet, opt, lr_s, done, s_, s, batch_o, batch_o_, batch_a, batch_r,
+                    batch_q, batch_m, batch_m_, i, num_agents, device='cpu'):
+    q_ = []
+    for i in range(len(lnet) - 1):
+        bo = batch_o[0][i]
+        ba = batch_a[0][i]
+        br = batch_r[0][i]
+        bq = batch_q[0][i]
+        bo_ = batch_o_[0][i]
+        bm = batch_m[0]
+        bm_ = batch_m_[0]
+        q_.append(lnet[i].next_Q(bo_, bm_))
+
+    loss = lnet[-1].loss_func(s, batch_q[0], br, s_, q_)
+
+    opt.zero_grad()
+    loss.backward()
+
+    for i in range(num_agents + 1):
+        for lp, gp in zip(lnet[i].parameters(), gnet[i].parameters()):
+            gp._grad = lp._grad
+
+    opt.step()
+
+    if lr_s != None:
+        lr_s.step()
+    for i in range(num_agents + 1):
+        lnet[i].load_state_dict(gnet[i].state_dict())
+
+    for i in range(num_agents + 1):
+        lnet[i].update_target_Q()
+        gnet[i].update_target_Q()
+
