@@ -86,7 +86,7 @@ def main_QMIX():
     gnet[-1].get_all_params(parameters)
     lr_s = torch.optim.lr_scheduler.StepLR(opt, step_size=1000, gamma=0.95, last_epoch=-1)
 
-    env_batch = [env] + [StarCraft2Env(map_name=map_name) for i in range(1, workers)]
+    env_batch = [env] + [StarCraft2Env(map_name=map_name, difficulty='1') for i in range(1, workers)]
 
     worker_batch = [worker_QMIX(env=env_batch[i],
                            s_dim=state_dim,
