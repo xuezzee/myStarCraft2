@@ -5,17 +5,17 @@ import itertools
 from smac.env import StarCraft2Env
 from agent.A3C_agent import A3C_agent
 from shared_adam import SharedAdam
-from utils.worker import worker, worker_QMIX
+from utils.worker import worker
 import torch.multiprocessing as mp
 from utils.logger import Logger, plot
-from agent.QMIX_agent import Q_net, QMIX
+# from agent.QMIX_agent import Q_net, QMIX
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('device:', device)
-logger = Logger('./logs1')
+logger = Logger('./logsA3C')
 def main():
-    map_name = '8m'
-    workers = 1
+    map_name = '1c3s5z'
+    workers = 3
     env = StarCraft2Env(map_name=map_name, difficulty='1')
     env_info = env.get_env_info()
 

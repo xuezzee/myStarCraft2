@@ -7,6 +7,7 @@ from agent.A3C_agent import A3C_agent
 # from agent.QMIX_agent import Agents
 # from utils.replay_buffer import myReplayBuffer
 from torch.distributions import one_hot_categorical
+from utils.logger import Logger
 
 
 class worker(mp.Process):
@@ -83,7 +84,7 @@ import numpy as np
 import torch
 from torch.distributions import one_hot_categorical
 import time
-
+logger = Logger('../logs')
 
 class RolloutWorker:
     def __init__(self, env, agents, args):

@@ -15,7 +15,7 @@ def get_common_args():
     parser.add_argument('--last_action', type=bool, default=True, help='whether to use the last action to choose action')
     parser.add_argument('--reuse_network', type=bool, default=True, help='whether to use one network for all agents')
     parser.add_argument('--gamma', type=float, default=0.99, help='discount factor')
-    parser.add_argument('--optimizer', type=str, default="RMS", help='optimizer')
+    # parser.add_argument('--optimizer', type=str, default="RMS", help='optimizer')
     parser.add_argument('--evaluate_epoch', type=int, default=20, help='number of the epoch to evaluate the agent')
     parser.add_argument('--model_dir', type=str, default='./model', help='model directory of the policy')
     parser.add_argument('--result_dir', type=str, default='./result', help='result directory of the policy')
@@ -39,40 +39,23 @@ def get_mixer_args(args):
     anneal_steps = 50000
     args.anneal_epsilon = (args.epsilon - args.min_epsilon) / anneal_steps
     args.epsilon_anneal_scale = 'step'
-
     args.n_epoch = 20000
-
-    # the number of the episodes in one epoch
     args.n_episodes = 1
-
-    # the number of the train steps in one epoch
     args.train_steps = 1
-
-    # # how often to evaluate
     args.evaluate_cycle = 100
-
-    # experience replay
     args.batch_size = 32
     args.buffer_size = int(5e3)
-
-    # how often to save the model
     args.save_cycle = 5000
-
-    # how often to update the target_net
     args.target_update_cycle = 200
-
-
     args.lambda_opt = 1
     args.lambda_nopt = 1
-
-    # prevent gradient explosion
     args.grad_norm_clip = 10
 
-    # MAVEN
-    args.noise_dim = 16
-    args.lambda_mi = 0.001
-    args.lambda_ql = 1
-    args.entropy_coefficient = 0.001
+    # # MAVEN
+    # args.noise_dim = 16
+    # args.lambda_mi = 0.001
+    # args.lambda_ql = 1
+    # args.entropy_coefficient = 0.001
     return args
 
 if __name__ == '__main__':
@@ -91,10 +74,10 @@ if __name__ == '__main__':
         args.obs_shape = env_info["obs_shape"]
         args.episode_limit = env_info["episode_limit"]
         runner = Runner(env, args)
-        if args.learn:
-            runner.run(i)
-        else:
-            win_rate, _ = runner.evaluate()
-            print('The win rate of {} is  {}'.format(args.alg, win_rate))
-            break
+        # if args.learn:
+        runner.run(i)
+        # else:
+        #     win_rate, _ = runner.evaluate()
+        #     print('The win rate of {} is  {}'.format(args.alg, win_rate))
+        #     break
         env.close()

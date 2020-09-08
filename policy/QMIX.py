@@ -20,34 +20,16 @@ class QMIX:
         self.eval_qmix_net = QMixNet(args)
         self.target_qmix_net = QMixNet(args)
         self.args = args
-        if self.args.cuda:
-            self.eval_rnn.cuda()
-            self.target_rnn.cuda()
-            self.eval_qmix_net.cuda()
-            self.target_qmix_net.cuda()
-        self.model_dir = args.model_dir + '/' + args.alg + '/' + args.map
-        # if self.args.load_model:
-        #     if os.path.exists(self.model_dir + '/rnn_net_params.pkl'):
-        #         path_rnn = self.model_dir + '/rnn_net_params.pkl'
-        #         path_qmix = self.model_dir + '/qmix_net_params.pkl'
-        #         map_location = 'cuda:0' if self.args.cuda else 'cpu'
-        #         self.eval_rnn.load_state_dict(torch.load(path_rnn, map_location=map_location))
-        #         self.eval_qmix_net.load_state_dict(torch.load(path_qmix, map_location=map_location))
-        #         print('Successfully load the model: {} and {}'.format(path_rnn, path_qmix))
-        #     else:
-        #         raise Exception("No model!")
 
         self.target_rnn.load_state_dict(self.eval_rnn.state_dict())
         self.target_qmix_net.load_state_dict(self.eval_qmix_net.state_dict())
 
         self.eval_parameters = list(self.eval_qmix_net.parameters()) + list(self.eval_rnn.parameters())
-        if args.optimizer == "RMS":
-            self.optimizer = torch.optim.RMSprop(self.eval_parameters, lr=args.lr)
+        self.optimizer = torch.optim.RMSprop(self.eval_parameters, lr=args.lr)
 
 
         self.eval_hidden = None
         self.target_hidden = None
-        print('Init alg QMIX')
 
     def learn(self, batch, max_episode_len, train_step, epsilon=None):  # train_step表示是第几次学习，用来控制更新target_net网络的参数
         episode_num = batch['o'].shape[0]
@@ -62,13 +44,7 @@ class QMIX:
                                                              batch['terminated']
         mask = 1 - batch["padded"].float()
         q_evals, q_targets = self.get_q_values(batch, max_episode_len)
-        if self.args.cuda:
-            s = s.cuda()
-            u = u.cuda()
-            r = r.cuda()
-            s_next = s_next.cuda()
-            terminated = terminated.cuda()
-            mask = mask.cuda()
+
 
         q_evals = torch.gather(q_evals, dim=3, index=u).squeeze(3)
 
@@ -119,11 +95,6 @@ class QMIX:
         q_evals, q_targets = [], []
         for transition_idx in range(max_episode_len):
             inputs, inputs_next = self._get_inputs(batch, transition_idx)
-            if self.args.cuda:
-                inputs = inputs.cuda()
-                inputs_next = inputs_next.cuda()
-                self.eval_hidden = self.eval_hidden.cuda()
-                self.target_hidden = self.target_hidden.cuda()
             q_eval, self.eval_hidden = self.eval_rnn(inputs, self.eval_hidden)
             q_target, self.target_hidden = self.target_rnn(inputs_next, self.target_hidden)
 
@@ -141,9 +112,3 @@ class QMIX:
         self.eval_hidden = torch.zeros((episode_num, self.n_agents, self.args.rnn_hidden_dim))
         self.target_hidden = torch.zeros((episode_num, self.n_agents, self.args.rnn_hidden_dim))
 
-    def save_model(self, train_step):
-        num = str(train_step // self.args.save_cycle)
-        if not os.path.exists(self.model_dir):
-            os.makedirs(self.model_dir)
-        torch.save(self.eval_qmix_net.state_dict(), self.model_dir + '/' + num + '_qmix_net_params.pkl')
-        torch.save(self.eval_rnn.state_dict(),  self.model_dir + '/' + num + '_rnn_net_params.pkl')

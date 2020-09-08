@@ -5,7 +5,9 @@ from torch import nn
 from utils.worker import RolloutWorker
 from utils.replay_buffer import ReplayBuffer
 from agent.QMIX_agent import Agents
+from utils.logger import Logger
 
+logger = Logger('../logst')
 class Runner:
     def __init__(self, env, args):
         self.env = env
@@ -19,21 +21,19 @@ class Runner:
 
     def run(self, num):
         train_steps = 0
-        # print('Run {} start'.format(num))
         for epoch in range(self.args.n_epoch):
             print('Run {}, train epoch {}'.format(num, epoch))
             if epoch % self.args.evaluate_cycle == 0:
                 win_rate, episode_reward = self.evaluate()
-                # print('win_rate is ', win_rate)
                 self.win_rates.append(win_rate)
                 self.episode_rewards.append(episode_reward)
-                # self.plt(num)
 
             episodes = []
 
             for episode_idx in range(self.args.n_episodes):
-                episode, _, _ = self.rolloutWorker.generate_episode(episode_idx)
+                episode, episode_reward, _ = self.rolloutWorker.generate_episode(episode_idx)
                 episodes.append(episode)
+            logger.scalar_summary('ep_reward', episode_reward, epoch)
                 # print(_)
 
             episode_batch = episodes[0]

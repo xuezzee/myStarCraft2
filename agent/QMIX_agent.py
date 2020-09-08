@@ -30,9 +30,6 @@ class Agents:
 
         inputs = torch.tensor(inputs, dtype=torch.float32).unsqueeze(0)
         avail_actions = torch.tensor(avail_actions, dtype=torch.float32).unsqueeze(0)
-        if self.args.cuda:
-            inputs = inputs.cuda()
-            hidden_state = hidden_state.cuda()
 
         q_value, self.policy.eval_hidden[:, agent_num, :] = self.policy.eval_rnn(inputs, hidden_state)
 
@@ -60,5 +57,3 @@ class Agents:
         for key in batch.keys():
             batch[key] = batch[key][:, :max_episode_len]
         self.policy.learn(batch, max_episode_len, train_step, epsilon)
-        if train_step > 0 and train_step % self.args.save_cycle == 0:
-            self.policy.save_model(train_step)

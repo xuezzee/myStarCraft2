@@ -7,17 +7,13 @@ class QMixNet(nn.Module):
         super(QMixNet, self).__init__()
         self.args = args
 
-        if args.two_hyper_layers:
-            self.hyper_w1 = nn.Sequential(nn.Linear(args.state_shape, args.hyper_hidden_dim),
-                                          nn.ReLU(),
-                                          nn.Linear(args.hyper_hidden_dim, args.n_agents * args.qmix_hidden_dim))
+        self.hyper_w1 = nn.Sequential(nn.Linear(args.state_shape, args.hyper_hidden_dim),
+                                      nn.ReLU(),
+                                      nn.Linear(args.hyper_hidden_dim, args.n_agents * args.qmix_hidden_dim))
 
-            self.hyper_w2 = nn.Sequential(nn.Linear(args.state_shape, args.hyper_hidden_dim),
-                                          nn.ReLU(),
-                                          nn.Linear(args.hyper_hidden_dim, args.qmix_hidden_dim))
-        else:
-            self.hyper_w1 = nn.Linear(args.state_shape, args.n_agents * args.qmix_hidden_dim)
-            self.hyper_w2 = nn.Linear(args.state_shape, args.qmix_hidden_dim * 1)
+        self.hyper_w2 = nn.Sequential(nn.Linear(args.state_shape, args.hyper_hidden_dim),
+                                      nn.ReLU(),
+                                      nn.Linear(args.hyper_hidden_dim, args.qmix_hidden_dim))
 
         self.hyper_b1 = nn.Linear(args.state_shape, args.qmix_hidden_dim)
         self.hyper_b2 =nn.Sequential(nn.Linear(args.state_shape, args.qmix_hidden_dim),
