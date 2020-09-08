@@ -25,12 +25,9 @@ class ReplayBuffer:
                         'padded': np.empty([self.size, self.episode_limit, 1]),
                         'terminated': np.empty([self.size, self.episode_limit, 1])
                         }
-        if self.args.alg == 'maven':
-            self.buffers['z'] = np.empty([self.size, self.args.noise_dim])
-        # thread lock
+
         self.lock = threading.Lock()
 
-        # store the episode
     def store_episode(self, episode_batch):
         batch_size = episode_batch['o'].shape[0]
         with self.lock:

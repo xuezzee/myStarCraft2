@@ -15,7 +15,6 @@ def get_common_args():
     parser.add_argument('--last_action', type=bool, default=True, help='whether to use the last action to choose action')
     parser.add_argument('--reuse_network', type=bool, default=True, help='whether to use one network for all agents')
     parser.add_argument('--gamma', type=float, default=0.99, help='discount factor')
-    # parser.add_argument('--optimizer', type=str, default="RMS", help='optimizer')
     parser.add_argument('--evaluate_epoch', type=int, default=20, help='number of the epoch to evaluate the agent')
     parser.add_argument('--model_dir', type=str, default='./model', help='model directory of the policy')
     parser.add_argument('--result_dir', type=str, default='./result', help='result directory of the policy')
@@ -26,7 +25,6 @@ def get_common_args():
     return args
 
 def get_mixer_args(args):
-    # network
     args.rnn_hidden_dim = 64
     args.qmix_hidden_dim = 32
     args.two_hyper_layers = False
@@ -51,11 +49,6 @@ def get_mixer_args(args):
     args.lambda_nopt = 1
     args.grad_norm_clip = 10
 
-    # # MAVEN
-    # args.noise_dim = 16
-    # args.lambda_mi = 0.001
-    # args.lambda_ql = 1
-    # args.entropy_coefficient = 0.001
     return args
 
 if __name__ == '__main__':
@@ -74,10 +67,5 @@ if __name__ == '__main__':
         args.obs_shape = env_info["obs_shape"]
         args.episode_limit = env_info["episode_limit"]
         runner = Runner(env, args)
-        # if args.learn:
         runner.run(i)
-        # else:
-        #     win_rate, _ = runner.evaluate()
-        #     print('The win rate of {} is  {}'.format(args.alg, win_rate))
-        #     break
         env.close()
