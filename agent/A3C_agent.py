@@ -80,7 +80,3 @@ class A3C_agent(nn.Module):
         if x.device != self.device:
             x = x.to(self.device)
         return x
-
-
-
-

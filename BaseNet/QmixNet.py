@@ -18,8 +18,7 @@ class QMixNet(nn.Module):
         self.hyper_b1 = nn.Linear(args.state_shape, args.qmix_hidden_dim)
         self.hyper_b2 =nn.Sequential(nn.Linear(args.state_shape, args.qmix_hidden_dim),
                                      nn.ReLU(),
-                                     nn.Linear(args.qmix_hidden_dim, 1)
-                                     )
+                                     nn.Linear(args.qmix_hidden_dim, 1))
 
     def forward(self, q_values, states):
         episode_num = q_values.size(0)
